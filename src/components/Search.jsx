@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useMainContext} from '../context/Context'
 
 function Search(props) {
@@ -12,16 +12,28 @@ function Search(props) {
     const optionBox =useRef(null)
 
 
+const filterEventData=eventData=>{
+        //스프레드 연산자로 참조 데이터를 덮어 쓰지 않습니다.
+    let filteredEventData =[...eventData]
+
+    if(storeSelection !=='All'){
+        filteredEventData = filteredEventData.filter(event => event.categories[0].title ===storeSelection)
+    }
+    return filteredEventData
+}
 
 
     const userSearch=(searchQuery,eventData)=>{
         let eventMatch=[]
-        if(searchQuery.length>0 && eventData){
-            for(const event in eventData){
-                let eventTitle = eventData[event].title.toLowerCase()
+        let filteredEventData =filterEventData(eventData)
+
+
+        if(searchQuery.length>0 && filteredEventData){
+            for(const event in filteredEventData){
+                let eventTitle = filteredEventData[event].title.toLowerCase()
 
                 if(eventTitle.indexOf(searchQuery) !== -1){
-                    eventMatch.push(eventData[event])
+                    eventMatch.push(filteredEventData[event])
                 }
             }
             //if they have typed in something but it didn't match(입력한 내용이 일치하지 않는 경우)
@@ -30,9 +42,17 @@ function Search(props) {
             }
             setMatchEvent(eventMatch)
         }else{
-            setMatchEvent(eventData)
+            setMatchEvent(filteredEventData)
         }
     }
+
+    useEffect(()=>{
+        //필터 옵션을 변경했습니다. 마커도 변경되기를 원합니다.
+        let filteredEventData =filterEventData(eventData)
+        console.log('filteredEventData>>>>>>',filteredEventData)
+        setReRenderMarkers(filteredEventData)
+        userSearch(searchBox.current.value.toLowerCase(),filteredEventData)
+    },[storeSelection])
 
     return (
         <><section className={'option-container'}>

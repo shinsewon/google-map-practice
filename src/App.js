@@ -25,12 +25,17 @@ function App() {
 
     },[ ])
 
+    useEffect(()=>{
+        if(reRenderMarkers !==null){
+            setRenderEvent(reRenderMarkers)
+        }
+    },[reRenderMarkers])
+
     return (
         <div>
             <Header/>
             {loading? <Map eventData={renderEvent}/>: <Loader/>}
             {loading && <Search/>}
-            {/*<Search/>*/}
         </div>
     );
 }
