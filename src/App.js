@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useState,useEffect} from 'react'
+import {useMainContext} from './context/Context'
+import axios from "axios";
+import Map from './components/GoogleMap'
+import Header from './components/Header'
+import Loader from './components/Loader'
+import Search from './components/Search'
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {setEventData,reRenderMarkers}=useMainContext()
+    const [loading, setLoading] = useState(false)
+    const [renderEvent, setRenderEvent] = useState([])
+
+    useEffect(()=>{
+        const fetchEvents =async ()=>{
+            setLoading(false)
+            const response = await axios.get('https://eonet.sci.gsfc.nasa.gov/api/v3/events')
+            const {events} =response.data
+            setEventData(events)
+            setRenderEvent(events)
+            setLoading(true)
+        }
+        fetchEvents()
+
+    },[ ])
+
+    return (
+        <div>
+            <Header/>
+            {loading? <Map eventData={renderEvent}/>: <Loader/>}
+            {loading && <Search/>}
+            {/*<Search/>*/}
+        </div>
+    );
 }
+
 
 export default App;
